@@ -24,7 +24,7 @@ function NavSearch() {
     if (!searchParams.get('search')) {
       setSearch('');
     }
-  }, [searchParams.get('search')]);
+  }, [searchParams]); //DEPLOYMENT: changed from [searchParams] from [searchParams.get('search')]
   return (
     <Input
       type='search'
