@@ -1,7 +1,33 @@
-const CartPage = () => {
-  return (
-    <div>CartPage</div>
-  )
-}
+import CartItemsList from '@/components/cart/CartItemsList';
+import CartTotals from '@/components/cart/CartTotals';
+import SectionTitle from '@/components/global/SectionTitle';
+import { fetchOrCreateCart, updateCart } from '@/utils/actions';
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
 
-export default CartPage
+async function CartPage() {
+  const { userId } = auth();
+  if (!userId) redirect('/');
+  const previousCart = await fetchOrCreateCart({ userId });
+  const { cartItems, currentCart } = await updateCart(previousCart);
+
+  if (cartItems.length === 0) {
+    return <SectionTitle text='Empty cart' />;
+  }
+  return (
+    <>
+      <SectionTitle text='Shopping Cart' />
+      <div className='mt-8 grid gap-4 lg:grid-cols-12'>
+        <div className='lg:col-span-8'>
+          <CartItemsList cartItems={cartItems} />
+        </div>
+        <div className='lg:col-span-4 lg:pl-4'>
+          <CartTotals cart={currentCart} />
+        </div>
+      </div>
+    </>
+  );
+}
+export default CartPage;
+
+//This has been refactored in in Lesson 648 Bug Fix. Previously items in the cart could be edited and reordered (item edited went to the end of list) with the incorrect associated product quantities
